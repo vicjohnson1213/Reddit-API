@@ -1,0 +1,22 @@
+{
+  "name": "reddit-api",
+  "version": "1.0.0",
+  "description": "## Types",
+  "main": "reddit.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vicjohnson1213/Reddit-API.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vicjohnson1213/Reddit-API/issues"
+  },
+  "homepage": "https://github.com/vicjohnson1213/Reddit-API#readme",
+  "dependencies": {
+    "request": "^2.79.0"
+  }
+}
