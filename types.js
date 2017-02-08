@@ -1,9 +1,10 @@
-var Post = require('./entities/post.js');
+var Link = require('./entities/link.js'),
+    Subreddit = require('./entities/subreddit.js');
 
 var FULLNAME_TYPES = {
     comment: 't1',
     account: 't2',
-    post: 't3',
+    link: 't3',
     message: 't4',
     subreddit: 't5',
     award: 't6',
@@ -28,15 +29,18 @@ function buildTypeFromKind(kind, data) {
     var result;
 
     switch(type) {
-        case 'post':
-            result = new Post(data);
+        case 'link':
+            result = new Link(data);
+            break;
+        case 'subreddit':
+            result = new Subreddit(data);
             break;
     }
 
     return result;
 }
 
-function buildFullnameFromTypeAndId(type, id) {
+function getFullnameFromTypeAndId(type, id) {
     return FULLNAME_TYPES[type] + '_' + id;
 }
 
@@ -44,4 +48,4 @@ module.exports.FULLNAME_TYPES = FULLNAME_TYPES;
 module.exports.getTypeFromFullname = getTypeFromFullname;
 module.exports.getTypeFromKind = getTypeFromKind;
 module.exports.buildTypeFromKind = buildTypeFromKind;
-module.exports.buildFullnameFromTypeAndId = buildFullnameFromTypeAndId;
+module.exports.getFullnameFromTypeAndId = getFullnameFromTypeAndId;

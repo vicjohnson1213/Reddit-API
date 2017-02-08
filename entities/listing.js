@@ -17,7 +17,7 @@ class Listing {
 
         if (this.filterSticky) {
             this.children = this.children.filter((thing) => {
-                return !thing.isSticky;
+                return !thing.stickied;
             });
         }
     }

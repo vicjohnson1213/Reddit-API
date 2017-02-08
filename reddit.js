@@ -2,12 +2,17 @@
 
 var path = require('path'),
     request = require('request'),
+
     utils = require('./utils.js'),
     filters = require('./filters.js'),
     types = require('./types.js'),
-    Post = require('./entities/post.js'),
+
+    Account = require('./entities/account.js'),
+    Link = require('./entities/link.js'),
     Listing = require('./entities/listing.js'),
-    Subreddit = require('./entities/subreddit.js');
+    Subreddit = require('./entities/subreddit.js'),
+    Preferences = require('./entities/preferences.js'),
+    KarmaList = require('./entities/karma-list.js');
 
 class Reddit {
     constructor(config) {
@@ -17,13 +22,29 @@ class Reddit {
         this.userAgent = config.userAgent;
     }
 
-
     /*
      * BEGIN USER FUNCTIONS
      */
 
     getMe() {
-        return this.authenticatedRequest('/api/v1/me', 'GET');
+        return this.authenticatedRequest('/api/v1/me', 'GET')
+            .then((account) => {
+                return new Account(account);
+            });
+    }
+
+    getPreferences() {
+        return this.authenticatedRequest('/api/v1/me/prefs', 'GET')
+            .then((prefs) => {
+                return new Preferences(prefs);
+            });
+    }
+
+    getKarma() {
+        return this.authenticatedRequest('/api/v1/me/karma', 'GET')
+            .then((karmaList) => {
+                return new KarmaList(karmaList);
+            });
     }
 
     /*
@@ -34,11 +55,12 @@ class Reddit {
     BEGIN POST FUNCTIONS
     */
 
-    getPost(id) {
-        return this.authenticatedRequest('/api/info', 'GET', { id: types.FULLNAME_TYPES.post + '_' + id })
-            .then((listing) => {
-                return new Post(listing.data.children[0]);
-            });
+    getLink(id) {
+        return this.authenticatedRequest('/api/info', 'GET', {
+            id: types.getFullnameFromTypeAndId('link', id)
+        }).then((listing) => {
+            return new Link(listing.data.children[0]);
+        });
     }
 
     /*
@@ -164,7 +186,7 @@ class Reddit {
             endpoint = path.join('/r', opts.subreddit, endpoint);
         }
 
-        utils.cleanObject(params)
+        params = utils.cleanObject(params);
 
         return this.authenticatedRequest(endpoint, 'GET', params)
             .then((res) => {
@@ -237,7 +259,7 @@ class Reddit {
     */
     vote(type, id, direction) {
         return this.authenticatedRequest('/api/vote', 'POST', {}, {
-            id: types.buildFullnameFromTypeAndId(type, id),
+            id: types.getFullnameFromTypeAndId(type, id),
             dir: direction
         });
     }
@@ -247,12 +269,32 @@ class Reddit {
     */
 
     /*
+    BEGIN SAVING FUNCTIONS
+    */
+
+    save(type, id) {
+        return this.authenticatedRequest('/api/save', 'POST', {}, {
+            id: types.getFullnameFromTypeAndId(type, id)
+        });
+    }
+
+    unsave(type, id) {
+        return this.authenticatedRequest('/api/unsave', 'POST', {}, {
+            id: types.getFullnameFromTypeAndId(type, id)
+        });
+    }
+
+    /*
+    END SAVING FUNCTIONS
+    */
+
+    /*
     BEGIN OAUTH FUNCTIONS
     */
 
     authenticatedRequest(endpoint, method, params, body) {
         return new Promise((resolve, reject) => {
-            var validAccessToken = this.accessToken && Date.now() > this.accessToken.expiration;
+            var validAccessToken = this.accessToken && this.accessToken.expiration > Date.now();
 
             var promise = validAccessToken ? Promise.resolve() : this.refreshAccessToken();
 
@@ -296,7 +338,7 @@ class Reddit {
 
                 this.accessToken = {
                     token: token.access_token,
-                    expiration: token.expires_in,
+                    expiration: expiration,
                     scopes: token.scope
                 };
 
