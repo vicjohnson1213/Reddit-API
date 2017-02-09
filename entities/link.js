@@ -3,8 +3,6 @@
 var utils = require('../utils.js');
 
 function createLink(res) {
-    res = res.data;
-
     var link = utils.camelCaseProperties(res);
 
     link.upvoted = link.likes === 1;

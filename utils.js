@@ -5,14 +5,14 @@ var url = require('url'),
     snakeCase = require('snake-case'),
     clone = require('clone'),
 
-    config = require('./config');
+    consts = require('./consts.js');
 
 function buildAuthURL() {
-    return url.format(config.REDDIT_AUTH_URL);
+    return url.format(consts.REDDIT_AUTH_URL);
 }
 
 function buildRequestURL(endpoint) {
-    var parts = config.REDDIT_REQUEST_URL;
+    var parts = consts.REDDIT_REQUEST_URL;
     var pathname = path.join(parts.pathname, endpoint);
 
     return url.format(Object.assign({}, parts, { pathname: endpoint }));
