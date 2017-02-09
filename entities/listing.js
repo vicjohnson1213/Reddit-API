@@ -2,25 +2,20 @@
 
 var types = require('../types.js');
 
-class Listing {
-    constructor(endpoint, data, opts) {
-        this.first = data.before;
-        this.last = data.after;
+function listing(endpoint, data, opts) {
+    return {
+        first: data.before,
+        last: data.after,
+        endpoint: endpoint,
+        pageSize: opts.pageSize,
+        filterSticky: opts.filterSticky,
 
-        this.endpoint = endpoint;
-        this.pageSize = opts.pageSize;
-        this.filterSticky = opts.filterSticky;
-
-        this.children = data.children.map((thing) => {
+        children: data.children.map((thing) => {
             return types.buildTypeFromKind(thing.kind, thing.data);
-        });
-
-        if (this.filterSticky) {
-            this.children = this.children.filter((thing) => {
-                return !thing.stickied;
-            });
-        }
-    }
+        }).filter((thing) => {
+            return opts.filterSticky ? opts.filterSticky : !thing.stickied;
+        })
+    };
 }
 
-module.exports = Listing;
+module.exports = listing;

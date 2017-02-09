@@ -7,12 +7,14 @@ var path = require('path'),
     filters = require('./filters.js'),
     types = require('./types.js'),
 
-    Account = require('./entities/account.js'),
-    Link = require('./entities/link.js'),
-    Listing = require('./entities/listing.js'),
-    Subreddit = require('./entities/subreddit.js'),
-    Preferences = require('./entities/preferences.js'),
-    KarmaList = require('./entities/karma-list.js');
+    account = require('./entities/account.js'),
+    comment = require('./entities/comment.js'),
+    karmaList = require('./entities/karma-list.js'),
+    link = require('./entities/link.js'),
+    listing = require('./entities/listing.js'),
+    preferences = require('./entities/preferences.js'),
+    subreddit = require('./entities/subreddit.js'),
+    trophy = require('./entities/trophy.js');
 
 class Reddit {
     constructor(config) {
@@ -28,22 +30,37 @@ class Reddit {
 
     getMe() {
         return this.authenticatedRequest('/api/v1/me', 'GET')
-            .then((account) => {
-                return new Account(account);
+            .then((res) => {
+                return account(res);
             });
     }
 
     getPreferences() {
         return this.authenticatedRequest('/api/v1/me/prefs', 'GET')
-            .then((prefs) => {
-                return new Preferences(prefs);
+            .then((res) => {
+                return preferences(res);
             });
     }
 
+    // setPreferences(prefs) {
+    //     return this.authenticatedRequest('/api/v1/me/prefs', 'PATCH', {}, utils.snakeCaseProperties(prefs))
+    //         .then(console.log)
+    //         .catch(console.log);
+    // }
+
     getKarma() {
         return this.authenticatedRequest('/api/v1/me/karma', 'GET')
-            .then((karmaList) => {
-                return new KarmaList(karmaList);
+            .then((res) => {
+                return karmaList(res);
+            });
+    }
+
+    getTrophies() {
+        return this.authenticatedRequest('/api/v1/me/trophies', 'GET')
+            .then((res) => {
+                return res.data.trophies.map((troph) => {
+                    return trophy(troph);
+                });
             });
     }
 
@@ -52,31 +69,47 @@ class Reddit {
      */
 
     /*
-    BEGIN POST FUNCTIONS
+    BEGIN LINK FUNCTIONS
     */
 
     getLink(id) {
         return this.authenticatedRequest('/api/info', 'GET', {
             id: types.getFullnameFromTypeAndId('link', id)
-        }).then((listing) => {
-            return new Link(listing.data.children[0]);
+        }).then((res) => {
+            return link(res.data.children[0]);
         });
     }
 
     /*
-    END POST FUNCTIONS
+    END LINK FUNCTIONS
+    */
+
+    /*
+    BEGIN COMMENT FUNCTIONS
+    */
+
+    getComment(id) {
+        return this.authenticatedRequest('/api/info', 'GET', {
+            id: types.getFullnameFromTypeAndId('comment', id)
+        }).then((res) => {
+            return comment(res.data.children[0]);
+        });
+    }
+
+    /*
+    END COMMENT FUNCTIONS
     */
 
     /*
     BEGIN SUBREDDIT FUNCTIONS
     */
 
-    getSubreddit(subreddit) {
-        var endpoint = path.join('/r/', subreddit, '/about');
+    getSubreddit(name) {
+        var endpoint = path.join('/r/', name, '/about');
 
         return this.authenticatedRequest(endpoint, 'GET')
             .then((res) => {
-                return new Subreddit(res.data);
+                return subreddit(res.data);
             });
     }
 
@@ -190,7 +223,7 @@ class Reddit {
 
         return this.authenticatedRequest(endpoint, 'GET', params)
             .then((res) => {
-                return new Listing(endpoint, res.data, opts);
+                return listing(endpoint, res.data, opts);
             });
     }
 
@@ -201,7 +234,7 @@ class Reddit {
                 before: listing.first
             })
             .then((res) => {
-                return new Listing(listing.endpoint, res.data, {
+                return listing(listing.endpoint, res.data, {
                     pageSize: listing.pageSize,
                     filterSticky: filterSticky
                 });
@@ -216,7 +249,7 @@ class Reddit {
                 after: listing.last
             })
             .then((res) => {
-                return new Listing(listing.endpoint, res.data, {
+                return listing(listing.endpoint, res.data, {
                     pageSize: listing.pageSize,
                     filterSticky: listing.filterSticky
                 });
@@ -286,6 +319,18 @@ class Reddit {
 
     /*
     END SAVING FUNCTIONS
+    */
+
+    /*
+    BEGIN MISC FUNCTIONS
+    */
+
+    getScopes() {
+        return this.authenticatedRequest('/api/v1/scopes', 'GET');
+    }
+
+    /*
+    END MISC FUNCTIONS
     */
 
     /*

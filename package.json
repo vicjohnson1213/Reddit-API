@@ -20,7 +20,8 @@
   "dependencies": {
     "camelcase": "^4.0.0",
     "clone": "^2.1.0",
-    "request": "^2.79.0"
+    "request": "^2.79.0",
+    "snake-case": "^2.1.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",

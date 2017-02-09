@@ -2,10 +2,8 @@
 
 var utils = require('../utils.js');
 
-class Subreddit {
-    constructor(data) {
-        Object.assign(this, utils.camelCaseProperties(data));
-    }
+function createSubreddit(subreddit) {
+    return utils.camelCaseProperties(subreddit);
 }
 
-module.exports = Subreddit;
+module.exports = createSubreddit;

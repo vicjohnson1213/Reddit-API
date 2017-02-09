@@ -2,15 +2,15 @@
 
 var utils = require('../utils.js');
 
-class Link {
-    constructor(link) {
-        link = link.data;
+function createLink(res) {
+    res = res.data;
 
-        Object.assign(this, utils.camelCaseProperties(link));
+    var link = utils.camelCaseProperties(res);
 
-        this.upvoted = this.likes === 1;
-        this.downvoted = this.likes === -1;
-    }
+    link.upvoted = link.likes === 1;
+    link.downvoted = link.likes === -1;
+
+    return link;
 }
 
-module.exports = Link;
+module.exports = createLink;

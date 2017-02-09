@@ -2,6 +2,7 @@ var url = require('url'),
     path = require('path'),
 
     camelCase = require('camelcase'),
+    snakeCase = require('snake-case'),
     clone = require('clone'),
 
     config = require('./config');
@@ -30,28 +31,38 @@ function cleanObject(obj) {
 }
 
 function camelCaseProperties(thing) {
+    return caseProperties(camelCase, thing);
+}
+
+function snakeCaseProperties(thing) {
+    return caseProperties(snakeCase, thing);
+}
+
+function caseProperties(caseFunc, thing) {
     if (thing === undefined || thing === null) return thing;
     
     var prototype = Object.getPrototypeOf(thing);
 
     if (prototype === Object.prototype) {
-        return camelCaseObjectProperties(thing);
+        return caseObjectProperties(caseFunc, thing);
     } else if (prototype === Array.prototype) {
-        return camelCaseArrayObjectProperties(thing);
+        return caseArrayObjectProperties(caseFunc, thing);
     }
 
     return thing;
 }
 
-function camelCaseArrayObjectProperties(arr) {
-    return arr.map(camelCaseProperties);
+function caseArrayObjectProperties(caseFunc, arr) {
+    return arr.map((thing) => {
+        return caseProperties(caseFunc, thing);
+    });
 }
 
-function camelCaseObjectProperties(object) {
+function caseObjectProperties(caseFunc, object) {
     var newObject = {};
 
     Object.keys(object).forEach(function(key) {
-        newObject[camelCase(key)] = camelCaseProperties(object[key]);
+        newObject[caseFunc(key)] = caseProperties(caseFunc, object[key]);
     });
 
     return newObject;
@@ -61,3 +72,4 @@ module.exports.buildAuthURL = buildAuthURL;
 module.exports.buildRequestURL = buildRequestURL;
 module.exports.cleanObject = cleanObject;
 module.exports.camelCaseProperties = camelCaseProperties;
+module.exports.snakeCaseProperties = snakeCaseProperties;

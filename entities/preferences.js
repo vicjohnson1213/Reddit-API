@@ -2,10 +2,8 @@
 
 var utils = require('../utils.js');
 
-class Preferences {
-    constructor(prefs) {
-        Object.assign(this, utils.camelCaseProperties(prefs));
-    }
+function createPreferences(prefs) {
+    return utils.camelCaseProperties(prefs);
 }
 
-module.exports = Preferences;
+module.exports = createPreferences;

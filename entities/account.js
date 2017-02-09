@@ -2,10 +2,8 @@
 
 var utils = require('../utils.js');
 
-class Account {
-    constructor(account) {
-        Object.assign(this, utils.camelCaseProperties(account));
-    }
+function createAccount(res) {
+    return utils.camelCaseProperties(res);
 }
 
-module.exports = Account;
+module.exports = createAccount;

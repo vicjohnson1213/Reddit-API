@@ -1,5 +1,5 @@
-var Link = require('./entities/link.js'),
-    Subreddit = require('./entities/subreddit.js');
+var link = require('./entities/link.js'),
+    subreddit = require('./entities/subreddit.js');
 
 var FULLNAME_TYPES = {
     comment: 't1',
@@ -30,10 +30,10 @@ function buildTypeFromKind(kind, data) {
 
     switch(type) {
         case 'link':
-            result = new Link(data);
+            result = link(data);
             break;
         case 'subreddit':
-            result = new Subreddit(data);
+            result = subreddit(data);
             break;
     }
 

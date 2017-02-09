@@ -22,7 +22,7 @@ describe('utils', function() {
                 }
             };
 
-            var actual = utils.camelCaseProperties(original)
+            var actual = utils.camelCaseProperties(original);
 
             var expected = {
                 firstProperty: 'first',
@@ -53,6 +53,46 @@ describe('utils', function() {
         });
     });
 
+    describe('snakeCaseProperties', function() {
+        it('should snakecase object propertoes', function() {
+            var original = {
+                firstProperty: 'first',
+                objectProperty: {
+                    deepProperty: 'deep'
+                }
+            };
+
+            var actual = utils.snakeCaseProperties(original);
+
+            var expected = {
+                first_property: 'first',
+                object_property: {
+                    deep_property: 'deep'
+                }
+            };
+
+            expect(actual).to.eql(expected);
+        });
+
+        it('should snakecase object properties inside array', function() {
+            var original = [{
+                firstObject: 'first'
+            }, {
+                secondObject: 'second'
+            }];
+
+            var actual = utils.snakeCaseProperties(original);
+
+            var expected = [{
+                first_object: 'first'
+            }, {
+                second_object: 'second'
+            }];
+
+            expect(actual).to.eql(expected);
+        });
+    });
+
     describe('buildAuthURL', function() {
         it('should build an URL for authentication', function() {
             var actual = utils.buildAuthURL();
@@ -70,4 +110,6 @@ describe('utils', function() {
             expect(actual).to.equal(expected);
         });
     });
+
+
 });
