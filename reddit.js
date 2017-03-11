@@ -23,6 +23,20 @@ class Reddit {
     }
 
     /*
+     * BEGIN GENERAL FUNCTIONS
+     */
+
+     delete(type, id) {
+        oauth.authenticatedRequest('/api/del', 'POST', {
+            id: types.getFullnameFromTypeAndId(type, id)
+        });
+     }
+
+    /*
+     * END GENERAL FUNCTIONS
+     */
+
+    /*
      * BEGIN USER FUNCTIONS
      */
 
@@ -79,6 +93,44 @@ class Reddit {
     }
 
     /*
+    link options: {
+        title: the title of the link,
+        url: the url of the link,
+        resubmit: whether or not to resubmit the same link,
+        sendReplies: whether or not to send replies to a user's inbox
+    }
+    */
+    submitLink(subreddit, link) {
+        return oauth.authenticatedRequest('/api/submit', 'POST', {
+            sr: subreddit,
+            kind: 'link',
+            api_type: 'json',
+            title: link.title,
+            url: link.url,
+            resubmit: link.resubmit || false,
+            sendReplies: link.sendReplies || false
+        });
+    }
+
+    /*
+    link options: {
+        title: the title of the link,
+        text: the text for the link,
+        sendReplies: whether or not to send replies to a user's inbox
+    }
+    */
+    submitText(subreddit, link) {
+        return oauth.authenticatedRequest('/api/submit', 'POST', {
+            sr: subreddit,
+            kind: 'self',
+            api_type: 'json',
+            title: link.title,
+            text: link.text,
+            sendReplies: link.sendReplies || false
+        });
+    }
+
+    /*
     END LINK FUNCTIONS
     */
 
@@ -91,6 +143,14 @@ class Reddit {
             id: types.getFullnameFromTypeAndId('comment', id)
         }).then((res) => {
             return comment(res.data.children[0]);
+        });
+    }
+
+    submitComment(type, id, text) {
+        return oauth.authenticatedRequest('/api/comment', 'POST', {
+            api_type: 'json',
+            text: text,
+            thing_id: types.getFullnameFromTypeAndId(type, id)
         });
     }
 
@@ -112,11 +172,7 @@ class Reddit {
     }
 
     /*
-    END POST FUNCTIONS
-    */
-
-    /*
-    END USER FUNCTIONS
+    END SUBREDDIT FUNCTIONS
     */
 
     /*
@@ -128,7 +184,7 @@ class Reddit {
 
     limit: Number, 1-100, limits the number to things returned (default is user preference).
     subreddit: Stirng, The subreddit to get the listing from.  If ommitted (default front).
-    filterSticky: Boolean, If true, stickied posts/comments will not be returned (default false).
+    filterSticky: Boolean, If true, stickied links/comments will not be returned (default false).
     */
     getHot(opts = {}) {
         var params = {
@@ -143,7 +199,7 @@ class Reddit {
 
     limit: Number, 1-100, limits the number to things returned (default is user preference).
     subreddit: Stirng, The subreddit to get the listing from.  If ommitted (default front).
-    filterSticky: Boolean, If true, stickied posts/comments will not be returned (default false).
+    filterSticky: Boolean, If true, stickied links/comments will not be returned (default false).
     */
     getNew(opts = {}) {
         var params = {
@@ -158,7 +214,7 @@ class Reddit {
 
     limit: Number, 1-100, limits the number to things returned (default is user preference).
     subreddit: Stirng, The subreddit to get the listing from.  If ommitted (default front).
-    filterSticky: Boolean, If true, stickied posts/comments will not be returned (default false).
+    filterSticky: Boolean, If true, stickied links/comments will not be returned (default false).
     */
     getRising(opts = {}) {
         var params = {
@@ -173,7 +229,7 @@ class Reddit {
     
     limit: Number, 1-100, limits the number to things returned (default is user preference).
     subreddit: String, The subreddit to get the listing from.  If ommitted (default front).
-    filterSticky: Boolean, If true, stickied posts/comments will not be returned (default false).
+    filterSticky: Boolean, If true, stickied links/comments will not be returned (default false).
     timeFrame: String, (one of [hour, day, week, month, year, all]) (default subreddit preference).
     */
     getTop(opts = {}) {
@@ -191,7 +247,7 @@ class Reddit {
     
     limit: Number, 1-100, limits the number to things returned (default is user preference).
     subreddit: String, The subreddit to get the listing from.  If ommitted (default front).
-    filterSticky: Boolean, If true, stickied posts/comments will not be returned (default false).
+    filterSticky: Boolean, If true, stickied links/comments will not be returned (default false).
     timeFrame: String, (one of [hour, day, week, month, year, all]) (default subreddit preference).
     */
     getControversial(opts = {}) {
@@ -209,7 +265,7 @@ class Reddit {
      
     limit: Number, 1-100, limits the number of things returned (default is user preference).
     subreddit: String, The subreddit to get the listing from.  If ommitted (default front),
-    filterSticky: Boolean, If true, stickied posts/comments will not be returned (default false).
+    filterSticky: Boolean, If true, stickied links/comments will not be returned (default false).
     */
     getListing(endpoint, opts = {}, params = {}) {
 
@@ -264,28 +320,28 @@ class Reddit {
     */
 
     /*
-    type: one of [comment, post]
+    type: one of [comment, link]
     */
     upvote(type, id) {
         return this.vote(type, id, 1);
     }
 
     /*
-    type: one of [comment, post]
+    type: one of [comment, link]
     */
     unvote(type, id) {
         return this.vote(type, id, 0);
     }
 
     /*
-    type: one of [comment, post]
+    type: one of [comment, link]
     */
     downvote(type, id) {
         return this.vote(type, id, -1);
     }
 
     /*
-    type: one of [comment, post]
+    type: one of [comment, link]
     direction: one of [1, 0, -1]
     */
     vote(type, id, direction) {
